@@ -1,0 +1,12 @@
+mongodb:
+  hosts:
+    rhel9-mongo:
+      ansible_host: 192.168.122.56
+    rhel8-mongo:
+      ansible_host: 192.168.122.62
+    rhel10-mongo:
+      ansible_host: 192.168.122.83
+
+
+  vars:
+    ansible_user: frqadmin

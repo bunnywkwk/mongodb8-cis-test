@@ -1,0 +1,6 @@
+---
+- name: Harden MongoDB 8 Enterprise to CIS
+  hosts: mongodb
+  become: true
+  roles:
+    - mongodb8_cis

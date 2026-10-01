@@ -1,0 +1,27 @@
+---
+# mongodb8_cis lab settings. Tests: docs/test-runs.md. Write true/false without quotes.
+
+# --- Install ------------------------------------------------------------------
+mongodb8_cis_install: true # T2: add the Enterprise repo and install MongoDB 8.0
+
+# --- Levels -------------------------------------------------------------------
+mongodb8_cis_level_1: true # T2-T10: Level 1 rules
+mongodb8_cis_level_2: true # T4-T10: set true (Level 2 rules, incl. 4.4)
+
+# --- Site values (read only when their rule is on) ----------------------------
+mongodb8_cis_admin_user: frqadminDB # 2.1 (T7): admin user created; login for 2.x/3.x reports (T8+)
+mongodb8_cis_admin_password: "changeme" # 2.1 (T7): its password, no spaces/quotes/backslashes
+mongodb8_cis_tls_certificate_key_file: /etc/pki/mongodb/server.pem # 4.3 (T7): copied by prep-tls.yml (T6)
+mongodb8_cis_tls_ca_file: /etc/pki/mongodb/ca.pem # 4.3 (T7): copied by prep-tls.yml (T6)
+mongodb8_cis_port: 27101 # 6.1 (T7): new port, labelled mongod_port_t
+
+# --- Optional extra (not CIS) -------------------------------------------------
+mongodb8_cis_selinux_policy: true # T9-T10: set true (MongoDB's SELinux module, labels)
+
+# --- Rules that can lock users out or break clients (off by default in the role) ---
+# T7-T10: uncomment these five. Comment them again before T2 on the next VM.
+mongodb8_cis_rule_2_1: true # 2.1 (T7): create frqadminDB, turn on authorization
+mongodb8_cis_rule_2_2: true # 2.2 (T7): turn off the localhost exception
+mongodb8_cis_rule_4_3: true # 4.3 (T7): require TLS (needs T6)
+mongodb8_cis_rule_4_4: true # 4.4 (T7): FIPS mode (Level 2, needs 4.3)
+mongodb8_cis_rule_6_1: true # 6.1 (T7): move to mongodb8_cis_port

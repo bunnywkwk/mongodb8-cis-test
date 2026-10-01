@@ -1,0 +1,29 @@
+---
+# Lab only: plays the company's certificate process for CIS 4.3. Run after MongoDB is installed (needs the mongod user).
+- name: Put the test TLS files on the hosts
+  hosts: mongodb
+  become: true
+  tasks:
+    - name: Create /etc/pki/mongodb
+      ansible.builtin.file:
+        path: /etc/pki/mongodb
+        state: directory
+        owner: root
+        group: mongod
+        mode: "0750"
+
+    - name: Copy the server certificate and key
+      ansible.builtin.copy:
+        src: "../pki/{{ inventory_hostname }}.pem"
+        dest: /etc/pki/mongodb/server.pem
+        owner: mongod
+        group: mongod
+        mode: "0600"
+
+    - name: Copy the CA certificate
+      ansible.builtin.copy:
+        src: ../pki/ca.pem
+        dest: /etc/pki/mongodb/ca.pem
+        owner: mongod
+        group: mongod
+        mode: "0600"
