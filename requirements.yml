@@ -1,0 +1,12 @@
+---
+roles:
+  - name: monngodb8_cis
+    src: https://github.com/bunnywkwk/mongodb-cis.git
+    scm: git
+    version: main
+
+collections:
+  - name: community.mongodb
+    version: ">=1.8.0,<2.0.0"
+  - name: community.general
+    version: ">=11.0.0,<12.0.0"
