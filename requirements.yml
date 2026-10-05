@@ -1,9 +1,9 @@
 ---
 roles:
-  - name: monngodb8_cis
+  - name: mongodb8_cis
     src: https://github.com/bunnywkwk/mongodb-cis.git
     scm: git
-    version: main
+    version: mongodb8-cis-rebuild
 
 collections:
   - name: community.mongodb

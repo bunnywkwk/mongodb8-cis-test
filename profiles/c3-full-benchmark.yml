@@ -1,0 +1,23 @@
+---
+# C3: full benchmark. Level 2 + every risky rule + the site decisions. Run playbooks/prep-tls.yml first (4.3).
+# Expected: every Automated rule ✅ (2.3 NOT APPLICABLE on a standalone), one restart, then rerun changed=0.
+# Left for a person (👤): 1.1 version, 3.2/3.4/3.5 reviews, 4.5 encryption at rest, 5.2 filter (empty = all events).
+# After this run connect with TLS + port 27100 + login (docs/cis-requirements.md in the role).
+mongodb8_cis_level_1: true
+mongodb8_cis_level_2: true
+
+# Risky rules (WARNING: login required, TLS required, FIPS, new port)
+mongodb8_cis_rule_2_1: true # create the admin, authorization on
+mongodb8_cis_rule_2_2: true # localhost exception off
+mongodb8_cis_rule_2_3: true # only reports NOT APPLICABLE on a standalone
+mongodb8_cis_rule_4_3: true # requireTLS
+mongodb8_cis_rule_4_4: true # FIPS mode (needs 4.3)
+mongodb8_cis_rule_6_1: true # move to mongodb8_cis_port
+
+# Site decisions for Manual rules (D20)
+mongodb8_cis_revoke_admin_roles: [] # 3.1: e.g. ["admin.badadmin"] after reading the report
+mongodb8_cis_audit_filter: "" # 5.2: empty = audit everything
+mongodb8_cis_fix_resource_limits: true # 6.2: drop-in only if limits differ
+mongodb8_cis_javascript_needed: false # 6.3: lab apps don't use server-side JS
+mongodb8_cis_fix_key_file_permissions: true # 7.1: TLS key + CA → 0600, owner mongod
+mongodb8_cis_fix_db_path_permissions: true # 7.2: dbPath → 0770

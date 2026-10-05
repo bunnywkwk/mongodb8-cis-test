@@ -166,3 +166,23 @@ lock users out wait for T7. The other "skipping" lines are Level 2 rules (off un
    The rows above marked `rhel8-mongo` ran on RHEL 9.8; **RHEL 8 is not tested yet**.
 2. RHEL 8: T2–T10 (base SELinux module only, no module build; Python 3.6 with ansible-core 2.16).
 3. RHEL 9: T9–T10 with the fixed role (module replaces the base one).
+
+## Compliance check (rebuild branch, 2026-10-05)
+
+Site values: `sysconfig/group_vars/mongodb/main.yml`. Each run picks a profile:
+
+```bash
+ansible-galaxy role install -r requirements.yml --force          # role from branch mongodb8-cis-rebuild
+ansible mongodb -m setup -a 'filter=ansible_distribution*'        # confirm which OS each host really runs
+ansible-playbook playbooks/site.yml -e @profiles/c1-level1-defaults.yml | tee runs/c1-$(date +%F).log
+```
+
+| Run | Profile | On | Proves |
+|-----|---------|----|--------|
+| C1 | `c1-level1-defaults.yml` | fresh VM | Level 1, safe defaults; rerun `changed=0` |
+| C2 | `c2-level2-defaults.yml` | same VM | Level 2 defaults; rerun `changed=0` |
+| — | `playbooks/prep-tls.yml` | same VM | TLS files in place for 4.3 |
+| C3 | `c3-full-benchmark.yml` | same VM | full benchmark; rerun `changed=0`; then the role's `docs/cis-requirements.md` Verify commands |
+
+Expected per rule: header of each profile file. Read the report lines with
+`grep -E '[0-9]\.[0-9] (PASS|FAIL|REVIEW|NOT APPLICABLE)' runs/<file>.log`.
