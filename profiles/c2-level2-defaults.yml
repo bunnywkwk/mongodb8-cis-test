@@ -1,9 +1,0 @@
----
-# C2: CIS Level 2 (= Level 1 + Level 2) with the role's defaults. Risky rules stay off.
-# Expected, in addition to C1:
-#   2.3 ❌ skipped (off; standalone)   3.5 👤 admin roles report   4.1 ❌ FAIL (TLS off)   4.4 ❌ skipped (off)
-#   4.5 👤 encryption at rest off      5.2 👤 no filter (all events audited)   5.3 ✅ PASS   5.4 ✅ PASS
-#   6.2 ✅ PASS (RPM unit limits)       6.3 👤 javascriptEnabled not set (on)
-# Rerun: changed=0.
-mongodb8_cis_level_1: true
-mongodb8_cis_level_2: true

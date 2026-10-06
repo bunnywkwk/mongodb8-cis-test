@@ -1,0 +1,47 @@
+---
+# mongodb8_cis lab settings. One file, two stages:
+#   1. Fresh VM: run as is (install MongoDB, Level 1 + 2, risky rules OFF = the role's safe defaults):
+#        ansible-playbook playbooks/site.yml --limit <host>
+#        ansible-playbook playbooks/prep-tls.yml --limit <host>
+#   2. Full benchmark: UNCOMMENT the block "FULL BENCHMARK" at the end, then:
+#        ansible-playbook playbooks/site.yml --limit <host> --force-handlers   (and once more: changed=0)
+#   Comment the block again before stage 1 on the next fresh VM. Write true/false unquoted.
+
+# --- Install ------------------------------------------------------------------
+mongodb8_cis_install: true                     # fresh VM: add the Enterprise repo and install MongoDB 8.0
+
+# --- Site values (read only when their rule is on) ----------------------------
+mongodb8_cis_admin_user: frqadminDB            # 2.1: admin created with role root; login for 2.x/3.x reads
+mongodb8_cis_admin_password: "changeme"   # lab only: plaintext (move to Vault for real use)
+mongodb8_cis_tls_certificate_key_file: /etc/pki/mongodb/server.pem      # 4.3: destination; prep-tls.yml copies lab_tls_* here
+mongodb8_cis_tls_ca_file: /etc/pki/mongodb/ca.pem                       # 4.3: destination; prep-tls.yml copies lab_tls_* here
+mongodb8_cis_port: 27100                       # 6.1: new port (labelled mongod_port_t by the role)
+
+# --- TLS files to put on the hosts (playbooks/prep-tls.yml; paths on THIS control node) ---
+# Change these to import other certificates (e.g. your company's). Vault-encrypted files work with --ask-vault-pass.
+lab_tls_cert_src: "{{ inventory_dir }}/../pki/{{ inventory_hostname }}.pem"   # server certificate + private key in one PEM (mongod needs both in one file)
+lab_tls_ca_src: "{{ inventory_dir }}/../pki/ca.pem"                          # CA that signed the server and client certificates
+
+# --- Levels: Level 2 = Level 1 + Level 2 (all 23 rules) ---------------------
+mongodb8_cis_level_1: true
+mongodb8_cis_level_2: true
+
+# =============================================================================
+# FULL BENCHMARK: uncomment after prep-tls.yml (stage 2)
+# =============================================================================
+# # WARNING: login required, TLS required, FIPS, new port 27100.
+# mongodb8_cis_rule_2_1: true                    # create the admin, authorization on
+# mongodb8_cis_rule_2_2: true                    # localhost exception off
+# mongodb8_cis_rule_2_3: true                    # only reports NOT APPLICABLE on a standalone
+# mongodb8_cis_rule_4_3: true                    # requireTLS
+# mongodb8_cis_rule_4_4: true                    # FIPS mode (needs 4.3)
+# mongodb8_cis_rule_6_1: true                    # move to mongodb8_cis_port
+# # Site decisions for Manual rules (D20, D30)
+# mongodb8_cis_revoke_admin_roles: []            # 3.1: e.g. ["admin.badadmin"] after reading the report
+# mongodb8_cis_drop_custom_roles: []             # 3.4: e.g. ["shop.orderReader"] after reading the report
+# mongodb8_cis_revoke_superuser_roles: []        # 3.5: e.g. ["admin.ops"]; never the admin above
+# mongodb8_cis_audit_filter: ""                  # 5.2: empty = audit everything
+# mongodb8_cis_fix_resource_limits: true         # 6.2: drop-in only if limits differ
+# mongodb8_cis_javascript_needed: false          # 6.3: lab apps don't use server-side JS
+# mongodb8_cis_fix_key_file_permissions: true    # 7.1: TLS key + CA → 0600, owner mongod
+# mongodb8_cis_fix_db_path_permissions: true     # 7.2: dbPath → 0770

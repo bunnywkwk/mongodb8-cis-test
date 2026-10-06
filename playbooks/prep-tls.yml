@@ -1,29 +1,45 @@
 ---
-# Lab only: plays the company's certificate process for CIS 4.3. Run after MongoDB is installed (needs the mongod user).
-- name: Put the test TLS files on the hosts
+# Puts the TLS files for CIS 4.3 on the hosts (the role only configures mongod to use them).
+# What to copy: lab_tls_* in sysconfig/group_vars/mongodb.yml (control-node paths, per host if needed).
+# Where to:     the role's mongodb8_cis_tls_certificate_key_file and mongodb8_cis_tls_ca_file (same values the role uses).
+# Run after MongoDB is installed (the mongod user owns the files; T-M9).
+- name: Put the TLS files on the hosts
   hosts: mongodb
   become: true
   tasks:
-    - name: Create /etc/pki/mongodb
+    - name: Check the mongod user exists (MongoDB installed)
+      ansible.builtin.getent:
+        database: passwd
+        key: mongod
+        fail_key: false
+
+    - name: Stop when MongoDB is not installed yet
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['getent_passwd']['mongod'] is not none
+        fail_msg: "No mongod user on {{ inventory_hostname }}: install MongoDB first (site.yml with mongodb8_cis_install: true)."
+
+    - name: Create the TLS directories
       ansible.builtin.file:
-        path: /etc/pki/mongodb
+        path: "{{ item }}"
         state: directory
         owner: root
         group: mongod
         mode: "0750"
+      loop: "{{ [mongodb8_cis_tls_certificate_key_file | dirname, mongodb8_cis_tls_ca_file | dirname] | unique }}"
 
-    - name: Copy the server certificate and key
+    - name: Copy the server certificate + key (one PEM file)
       ansible.builtin.copy:
-        src: "../pki/{{ inventory_hostname }}.pem"
-        dest: /etc/pki/mongodb/server.pem
+        src: "{{ lab_tls_cert_src }}"
+        dest: "{{ mongodb8_cis_tls_certificate_key_file }}"
         owner: mongod
         group: mongod
         mode: "0600"
 
     - name: Copy the CA certificate
       ansible.builtin.copy:
-        src: ../pki/ca.pem
-        dest: /etc/pki/mongodb/ca.pem
+        src: "{{ lab_tls_ca_src }}"
+        dest: "{{ mongodb8_cis_tls_ca_file }}"
         owner: mongod
         group: mongod
         mode: "0600"
