@@ -1,0 +1,385 @@
+
+PLAY [Harden MongoDB 8 Enterprise to CIS] **************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Gather minimal facts if the play skipped them] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Check ansible-core version] **************
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Check supported OS] **********************
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Check the requested MongoDB version is supported] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : INSTALL | PATCH | Import the MongoDB package signing key] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : INSTALL | PATCH | Add the official MongoDB Enterprise repository] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : INSTALL | PATCH | Install MongoDB packages] ***************
+changed: [rhel9-mongo]
+
+TASK [mongodb8_cis : INSTALL | PATCH | Start and enable mongod] ****************
+changed: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Gather installed packages] ***************
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Detect MongoDB server package] ***********
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Stop when MongoDB is not installed | Report] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Stop when MongoDB is not installed | End this host] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Check the installed MongoDB version is supported] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Read mongod.conf] ************************
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Parse mongod.conf] ***********************
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Keep the config mongod is running with] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Check mongod.conf uses net.tls, not the deprecated net.ssl] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Check the database login values] *********
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Read mongod service properties] **********
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : PRELIM | AUDIT | Show what was found] *********************
+ok: [rhel9-mongo] => {
+    "msg": [
+        "MongoDB server: 8.0.32",
+        "Config file: /etc/mongod.conf",
+        "dbPath: /var/lib/mongo",
+        "Log file: /var/log/mongodb/mongod.log",
+        "Service user: mongod"
+    ]
+}
+
+TASK [mongodb8_cis : 1.1 | AUDIT | Ensure the appropriate MongoDB software version/patches are installed] ***
+ok: [rhel9-mongo] => {
+    "msg": "1.1 REVIEW: installed MongoDB server 8.0.32. Compare with the latest 8.0.x release and the security alerts at https://www.mongodb.com/alerts. The role never upgrades automatically."
+}
+
+TASK [mongodb8_cis : 2.1 | PATCH | Ensure Authentication is configured | Check the admin user values] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 2.1 | AUDIT | Ensure Authentication is configured | Check whether the admin user exists] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 2.1 | PATCH | Ensure Authentication is configured | Create the admin user] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 2.1 | PATCH | Ensure Authentication is configured | Set security.authorization: enabled] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 2.1 | PATCH | Ensure Authentication is configured | Update the parsed config] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 2.2 | AUDIT | Ensure that MongoDB does not bypass authentication via the localhost exception | Count database users] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 2.2 | PATCH | Ensure that MongoDB does not bypass authentication via the localhost exception | Check a user exists] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 2.2 | PATCH | Ensure that MongoDB does not bypass authentication via the localhost exception | Set enableLocalhostAuthBypass: false] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 2.2 | PATCH | Ensure that MongoDB does not bypass authentication via the localhost exception | Update the parsed config] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 2.3 | AUDIT | Ensure authentication is enabled in the sharded cluster] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.1 | AUDIT | Ensure least privilege for database accounts | Find dbOwner, userAdmin, userAdminAnyDatabase in admin] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.1 | AUDIT | Ensure least privilege for database accounts | Report] ***
+ok: [rhel9-mongo] => {
+    "msg": "3.1 PASS: accounts with dbOwner, userAdmin or userAdminAnyDatabase in admin: none. CIS: drop these roles (list an account in mongodb8_cis_revoke_admin_roles to let the role do it)."
+}
+
+TASK [mongodb8_cis : 3.1 | PATCH | Ensure least privilege for database accounts | Revoke the roles from the listed accounts] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.2 | AUDIT | Ensure that role-based access control is enabled and configured appropriately | List users and roles] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.2 | AUDIT | Ensure that role-based access control is enabled and configured appropriately | Report authorization] ***
+ok: [rhel9-mongo] => {
+    "msg": "3.2 REVIEW: security.authorization = disabled (running config), 0 user(s). Check each user's roles below."
+}
+
+TASK [mongodb8_cis : 3.2 | AUDIT | Ensure that role-based access control is enabled and configured appropriately | Report each user] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.3 | AUDIT | Ensure that MongoDB is run using a non-privileged, dedicated service account | Get the mongod process owner] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.3 | AUDIT | Ensure that MongoDB is run using a non-privileged, dedicated service account | Report] ***
+ok: [rhel9-mongo] => {
+    "msg": "3.3 PASS: unit User = mongod, running mongod (PID 7237) owned by mongod. File permissions for this account are checked by 7.1 and 7.2."
+}
+
+TASK [mongodb8_cis : 3.4 | AUDIT | Ensure that each role for each MongoDB database is needed and grants only the necessary privileges | List user-defined roles] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.4 | AUDIT | Ensure that each role for each MongoDB database is needed and grants only the necessary privileges | Report] ***
+ok: [rhel9-mongo] => {
+    "msg": "3.4 REVIEW: 0 user-defined role(s); built-in roles are fixed by MongoDB. Check each role below is needed (list an unneeded one in mongodb8_cis_drop_custom_roles to let the role drop it)."
+}
+
+TASK [mongodb8_cis : 3.4 | AUDIT | Ensure that each role for each MongoDB database is needed and grants only the necessary privileges | Report each role] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.4 | PATCH | Ensure that each role for each MongoDB database is needed and grants only the necessary privileges | Drop the listed roles] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.5 | AUDIT | Review Superuser/Admin Roles | Find users with superuser or admin roles] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.5 | AUDIT | Review Superuser/Admin Roles | Report] ******
+ok: [rhel9-mongo] => {
+    "msg": "3.5 REVIEW: 0 user(s) hold one of root, dbOwner, userAdmin, userAdminAnyDatabase, readWriteAnyDatabase, dbAdminAnyDatabase, clusterAdmin, hostManager. Check each one below is needed (list an account in mongodb8_cis_revoke_superuser_roles to let the role revoke them)."
+}
+
+TASK [mongodb8_cis : 3.5 | AUDIT | Review Superuser/Admin Roles | Report each user] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.5 | PATCH | Review Superuser/Admin Roles | Check the list does not include the role's own admin] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 3.5 | PATCH | Review Superuser/Admin Roles | Revoke the roles from the listed accounts] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.3 | PATCH | Ensure Encryption of Data in Transit TLS or SSL (Transport Encryption) | Get the PEM files] ***
+skipping: [rhel9-mongo] => (item=/etc/pki/mongodb/server.pem) 
+skipping: [rhel9-mongo] => (item=/etc/pki/mongodb/ca.pem) 
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.3 | PATCH | Ensure Encryption of Data in Transit TLS or SSL (Transport Encryption) | Check the PEM files] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.3 | PATCH | Ensure Encryption of Data in Transit TLS or SSL (Transport Encryption) | Set net.tls mode requireTLS] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.3 | PATCH | Ensure Encryption of Data in Transit TLS or SSL (Transport Encryption) | Update the parsed config] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.1 | PATCH | Ensure legacy TLS protocols are disabled | Report when TLS is off] ***
+ok: [rhel9-mongo] => {
+    "msg": "4.1 FAIL: TLS is not enabled (net.tls.mode). mongod refuses disabledProtocols without it: configure TLS first (rule 4.3)."
+}
+
+TASK [mongodb8_cis : 4.1 | PATCH | Ensure legacy TLS protocols are disabled | Set net.tls.disabledProtocols] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.1 | PATCH | Ensure legacy TLS protocols are disabled | Update the parsed config] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.2 | PATCH | Ensure Weak Protocols are Disabled | Report when TLS is off] ***
+ok: [rhel9-mongo] => {
+    "msg": "4.2 FAIL: TLS is not enabled (net.tls.mode). mongod refuses disabledProtocols without it: configure TLS first (rule 4.3)."
+}
+
+TASK [mongodb8_cis : 4.2 | PATCH | Ensure Weak Protocols are Disabled | Set net.tls.disabledProtocols] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.2 | PATCH | Ensure Weak Protocols are Disabled | Update the parsed config] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.4 | PATCH | Ensure Federal Information Processing Standard (FIPS) is enabled | Report when TLS is off] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.4 | PATCH | Ensure Federal Information Processing Standard (FIPS) is enabled | Write mongod.conf] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.4 | PATCH | Ensure Federal Information Processing Standard (FIPS) is enabled | Update the parsed config] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 4.5 | AUDIT | Ensure Encryption of Data at Rest] **********
+ok: [rhel9-mongo] => {
+    "msg": "4.5 REVIEW: security.enableEncryption = not set (false); key management: none. CIS recommends KMIP; a local keyfile is the other option."
+}
+
+TASK [mongodb8_cis : 5.1 | PATCH | Ensure that system activity is audited | Check the site values] ***
+ok: [rhel9-mongo] => {
+    "changed": false,
+    "msg": "All assertions passed"
+}
+
+TASK [mongodb8_cis : 5.1 | PATCH | Ensure that system activity is audited | Set auditLog] ***
+changed: [rhel9-mongo]
+
+TASK [mongodb8_cis : 5.1 | PATCH | Ensure that system activity is audited | Update the parsed config] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : 5.2 | AUDIT | Ensure that audit filters are configured properly | Report] ***
+ok: [rhel9-mongo] => {
+    "msg": "5.2 REVIEW: auditLog.filter = not set (all auditable events are recorded). Check it against the audit requirements of the organisation."
+}
+
+TASK [mongodb8_cis : 5.2 | PATCH | Ensure that audit filters are configured properly | Write auditLog.filter] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 5.2 | PATCH | Ensure that audit filters are configured properly | Update the parsed config] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 5.3 | PATCH | Ensure that logging captures as much information as possible | Set systemLog.quiet: false] ***
+changed: [rhel9-mongo]
+
+TASK [mongodb8_cis : 5.3 | PATCH | Ensure that logging captures as much information as possible | Update the parsed config] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : 5.4 | PATCH | Ensure that new entries are appended to the end of the log file | Set systemLog.logAppend: true] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 5.4 | PATCH | Ensure that new entries are appended to the end of the log file | Update the parsed config] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 6.1 | PATCH | Ensure that MongoDB uses a non-default port | Check the site port] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 6.1 | PATCH | Ensure that MongoDB uses a non-default port | Install the SELinux management tools] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 6.1 | PATCH | Ensure that MongoDB uses a non-default port | Set mongod_port_t] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 6.1 | PATCH | Ensure that MongoDB uses a non-default port | Set net.port] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 6.1 | PATCH | Ensure that MongoDB uses a non-default port | Update the parsed config] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 6.2 | AUDIT | Ensure that operating system resource limits are set for MongoDB | Report each limit] ***
+ok: [rhel9-mongo] => (item=LimitFSIZE) => {
+    "msg": "6.2 PASS: LimitFSIZE = infinity (expected infinity)."
+}
+ok: [rhel9-mongo] => (item=LimitCPU) => {
+    "msg": "6.2 PASS: LimitCPU = infinity (expected infinity)."
+}
+ok: [rhel9-mongo] => (item=LimitAS) => {
+    "msg": "6.2 PASS: LimitAS = infinity (expected infinity)."
+}
+ok: [rhel9-mongo] => (item=LimitNOFILE) => {
+    "msg": "6.2 PASS: LimitNOFILE = 64000 (expected 64000)."
+}
+ok: [rhel9-mongo] => (item=LimitRSS) => {
+    "msg": "6.2 PASS: LimitRSS = infinity (expected infinity)."
+}
+ok: [rhel9-mongo] => (item=LimitNPROC) => {
+    "msg": "6.2 PASS: LimitNPROC = 64000 (expected 64000)."
+}
+
+TASK [mongodb8_cis : 6.2 | PATCH | Ensure that operating system resource limits are set for MongoDB | Create the drop-in directory] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 6.2 | PATCH | Ensure that operating system resource limits are set for MongoDB | Write the limits drop-in] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 6.3 | AUDIT | Ensure that server-side scripting is disabled if not needed | Report] ***
+ok: [rhel9-mongo] => {
+    "msg": "6.3 REVIEW: security.javascriptEnabled = not set (default true). Site decision mongodb8_cis_javascript_needed = True."
+}
+
+TASK [mongodb8_cis : 6.3 | PATCH | Ensure that server-side scripting is disabled if not needed | Write mongod.conf] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 6.3 | PATCH | Ensure that server-side scripting is disabled if not needed | Update the parsed config] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 7.1 | AUDIT | Ensure appropriate key file permissions are set | Get key and certificate files] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 7.1 | AUDIT | Ensure appropriate key file permissions are set | Report when none configured] ***
+ok: [rhel9-mongo] => {
+    "msg": "7.1 NOT APPLICABLE: no keyFile, certificateKeyFile or CAFile in /etc/mongod.conf."
+}
+
+TASK [mongodb8_cis : 7.1 | AUDIT | Ensure appropriate key file permissions are set | Report each file] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 7.1 | PATCH | Ensure appropriate key file permissions are set | Set 0600 and owner (site decision)] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : 7.2 | AUDIT | Ensure appropriate database file permissions are set. | Get dbPath permissions] ***
+ok: [rhel9-mongo]
+
+TASK [mongodb8_cis : 7.2 | AUDIT | Ensure appropriate database file permissions are set. | Report] ***
+ok: [rhel9-mongo] => {
+    "msg": "7.2 FAIL: /var/lib/mongo is 0755 mongod:mongod (expected 0770 mongod:mongod)."
+}
+
+TASK [mongodb8_cis : 7.2 | PATCH | Ensure appropriate database file permissions are set. | Set 0770 and owner (site decision)] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | AUDIT | Report when SELinux is disabled] ********
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | PATCH | Confine mongod with SELinux | Install the SELinux tools] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | AUDIT | Confine mongod with SELinux | Report RHEL 8] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | PATCH | Confine mongod with SELinux | Copy the module sources] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | AUDIT | Confine mongod with SELinux | List loaded modules] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | PATCH | Confine mongod with SELinux | Build mongodb.pp] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | PATCH | Confine mongod with SELinux | Load mongodb.pp at priority 200] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | PATCH | Confine mongod with SELinux | Find mongod socket files left by the old policy] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | PATCH | Confine mongod with SELinux | Remove mongod socket files left by the old policy] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | PATCH | Confine mongod with SELinux | Label a non-default dbPath and log directory] ***
+skipping: [rhel9-mongo] => (item=/var/lib/mongo) 
+skipping: [rhel9-mongo] => (item=/var/log/mongodb) 
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | PATCH | Confine mongod with SELinux | Label a non-default port] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | PATCH | Confine mongod with SELinux | Restore file labels] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | AUDIT | Confine mongod with SELinux | Read the running mongod domain] ***
+skipping: [rhel9-mongo]
+
+TASK [mongodb8_cis : SELINUX | AUDIT | Confine mongod with SELinux | Report] ***
+skipping: [rhel9-mongo]
+
+RUNNING HANDLER [mongodb8_cis : Restart mongod service] ************************
+changed: [rhel9-mongo]
+
+RUNNING HANDLER [mongodb8_cis : Wait for mongod to accept connections] *********
+ok: [rhel9-mongo]
+
+PLAY RECAP *********************************************************************
+rhel9-mongo                : ok=45   changed=5    unreachable=0    failed=0    skipped=61   rescued=0    ignored=0   
+

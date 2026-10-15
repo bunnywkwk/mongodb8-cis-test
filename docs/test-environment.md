@@ -1,75 +1,39 @@
 # Test environment — `mongodb8_cis` lab
 
-How this lab is built and what to do before running the tests in [test-runs.md](test-runs.md).
-The role itself lives in `~/mongodb-cis` (linked as `roles/mongodb8_cis`); its own design docs stay in that repo.
+How this lab is built: VMs, certificates, variables. How to **run** it: [../README.md](../README.md).
+The role is installed from GitHub into `roles/mongodb8_cis` (`requirements.yml`); its design docs stay in that repo.
+
+> **Revised 2026-10-06:** the lab moved from KVM on a Fedora laptop to **Proxmox** VMs; the role comes from
+> `ansible-galaxy`, not a symlink; `docs/test-runs.md` and the profiles were replaced by the README run order.
 
 ## 1. The lab
 
 | Part | Value |
 |------|-------|
-| Laptop (control node) | Fedora 44, KVM/libvirt (`qemu:///system`), 8 cores, 15 GB RAM |
-| Ansible | `~/.ansible-2.16.1-env`: ansible-core **2.16.19**, Python 3.11. One environment for RHEL 8, 9 and 10 |
-| Collections | `./collections`: `community.mongodb` 1.8.0, `community.general` 11.4.9 (+ `ansible.posix`) |
+| Control node | AlmaLinux 10 workstation (earlier: Fedora 44 laptop with KVM) |
+| Ansible | `~/.ansible-2.16.1-env`: ansible-core **2.16.19**. One environment for RHEL 8, 9 and 10 |
+| Collections | `~/.ansible/collections`: `community.mongodb` 1.8.0, `community.general` 11.4.9 (+ `ansible.posix`) |
 | SSH user on the VMs | `frqadmin` (sudo), key-based |
 
 | VM | IP | OS |
 |----|----|----|
-| `rhel8-mongo` | 192.168.122.83 | RHEL 8, Minimal Install, SELinux enforcing |
-| `rhel9-mongo` | 192.168.122.62 | RHEL 9, Minimal Install, SELinux enforcing |
-| `rhel10-mongo` | 192.168.122.56 | RHEL 10, Minimal Install, SELinux enforcing |
+| `rhel8-mongo` | 192.168.20.50 | RHEL 8, Minimal Install, SELinux enforcing |
+| `rhel9-mongo` | 192.168.20.30 | RHEL 9, Minimal Install, SELinux enforcing |
+| `rhel10-mongo` | 192.168.20.40 | RHEL 10, Minimal Install, SELinux enforcing |
 
-Each VM: 2 GB RAM, 2 vCPU, CPU mode `host-passthrough` (RHEL 10 needs x86-64-v3, MongoDB 8 needs AVX), registered
-to Red Hat so `dnf` reaches BaseOS/AppStream. Run one or two VMs at a time (laptop RAM).
+Proxmox VMs with CPU type `host` (RHEL 10 needs x86-64-v3, MongoDB 8 needs AVX), registered to Red Hat so `dnf`
+reaches BaseOS/AppStream, each with a fresh "base" snapshot. SSH key `~/.ssh/id_ed25519_cis` (set in the inventory).
 
 ## 2. Folder layout
 
-```
-~/mongodb8-cis-test/
-├── ansible.cfg                      inventory, roles_path, collections_path
-├── sysconfig/inventory.yml          the 3 VMs, user frqadmin
-├── sysconfig/group_vars/mongodb.yml the role's settings (safe defaults; rules 2.1, 2.2, 4.3, 4.4, 6.1 commented out, for T7–T10)
-├── playbooks/site.yml               runs the role (become: true)
-├── playbooks/prep-tls.yml           copies the test certificates to the VMs (section 5)
-├── roles/mongodb8_cis -> ~/mongodb-cis
-├── collections/                     collections for ansible-core 2.16
-├── pki/                             our own test certificate authority (section 4)
-└── docs/                            this guide, test-runs.md, evidence-images/
-```
-
-`ansible.cfg`:
-
-```ini
-[defaults]
-inventory = sysconfig/inventory.yml
-collections_path = ./collections
-roles_path = ./roles
-```
-
-`roles_path` is required: the playbook sits in `playbooks/`, and without it Ansible only looks in `playbooks/roles`
-(*"the role 'mongodb8_cis' was not found"*).
+See [../README.md](../README.md) "Layout". `ansible.cfg` sets `inventory = sysconfig/inventory.yml` and
+`roles_path = roles`; `roles_path` is required because the playbooks sit in `playbooks/` (without it: *"the role
+'mongodb8_cis' was not found"*).
 
 ## 3. One-time setup of the control node
 
-```bash
-# ansible-core 2.16 needs Python 3.10–3.12 on the controller; Fedora's python3 is 3.14, so use 3.11
-~/.ansible-2.16.1-env/bin/pip install --upgrade pip
-~/.ansible-2.16.1-env/bin/pip install 'ansible-core>=2.16.1,<2.17'
-
-cd ~/mongodb8-cis-test
-ln -s ~/mongodb-cis roles/mongodb8_cis
-source ~/.ansible-2.16.1-env/bin/activate
-ansible-galaxy collection install -r roles/mongodb8_cis/requirements.yml -p ./collections
-```
-
-Collections go into `./collections`, not `~/.ansible/collections`: the shared one has `community.general` 13.x, which
-needs ansible-core 2.18+.
-
-On each VM, once, from the clean install:
-
-```bash
-ssh-copy-id frqadmin@<vm-ip>
-virsh -c qemu:///system snapshot-create-as <vm> base      # e.g. rhel9-mongo; revert with snapshot-revert <vm> base
-```
+See [../README.md](../README.md) §1. Collections must be the 2.16-compatible versions (`community.general` 11.x);
+a newer `community.general` (12+/13.x) needs ansible-core 2.17/2.18+.
 
 ## 4. `pki/`: our own test certificates
 
@@ -162,7 +126,7 @@ Keep `pki/` private and out of git: it holds private keys.
 
 Plays the part of the company's certificate process: copies `ca.pem` and the VM's own `<vm>.pem` into
 `/etc/pki/mongodb/`, owned by `mongod` with mode 0600 (what rule 7.1 expects). Run it **after MongoDB is installed**
-(the `mongod` user must exist) and **before** the run that turns on rule 4.3 (T7).
+(the `mongod` user must exist) and **before** the run that turns on rule 4.3 (FULL BENCHMARK block).
 
 ```bash
 ansible-playbook playbooks/prep-tls.yml --limit rhel9-mongo
@@ -175,9 +139,9 @@ All switches are set in this file, not with `-e`. The role checks them with plai
 
 | Write | Means | Result |
 |-------|-------|--------|
-| `mongodb8_cis_level_2: true` | boolean true | ✅ runs |
-| `mongodb8_cis_level_2: false` | boolean false | ✅ skipped |
-| `mongodb8_cis_level_2: "false"` | **text**, not a boolean | ❌ ansible-core 2.16 treats it as **true** and runs the rules (only a deprecation warning) |
+| `mongodb8_cis_level_2: true` | boolean true | OK: runs |
+| `mongodb8_cis_level_2: false` | boolean false | OK: skipped |
+| `mongodb8_cis_level_2: "false"` | **text**, not a boolean | Wrong: ansible-core 2.16 treats it as **true** and runs the rules (only a deprecation warning) |
 | `mongodb8_cis_level_2: yes` / `no` | boolean in YAML 1.1, but not the project style (yamllint `truthy`) | avoid |
 
 - **No quotes around `true`/`false`.** Quotes are only for text values: passwords, paths (`"changeme"`, `/etc/pki/...`).
@@ -200,9 +164,8 @@ ansible-inventory --host rhel9-mongo | grep mongodb8_cis
 ```bash
 cd ~/mongodb8-cis-test
 source ~/.ansible-2.16.1-env/bin/activate
-ansible --version                                  # core 2.16.19
-virsh -c qemu:///system list --all                 # the VM(s) you test are running
+ansible --version                                  # core 2.16.x
 ansible mongodb -m ping --limit rhel9-mongo        # pong
 ```
 
-Then follow [test-runs.md](test-runs.md).
+Then follow the run order in [../README.md](../README.md) §3.

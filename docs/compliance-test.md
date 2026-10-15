@@ -5,7 +5,7 @@ Proof that each lab host is hardened by `mongodb8_cis`: the Ansible runs, the ro
 
 | Item | Value (fill in) |
 |------|-----------------|
-| Role | `requirements.yml` version: ☐ `main` ☐ `mongodb8-cis-rebuild`, commit → |
+| Role | `requirements.yml` version: [ ] `main` [ ] `mongodb8-cis-rebuild`, commit → |
 | Settings | `sysconfig/group_vars/mongodb.yml` (FULL BENCHMARK block uncommented for S4/S5) |
 | MongoDB | `mongod --version` → |
 | Date / tester | |
@@ -35,12 +35,12 @@ Evidence for the runs = the `tee` logs in `runs/` (no screenshots). Checked 2026
 
 | Step | Expected | RHEL 8 | RHEL 9 | RHEL 10 |
 |------|----------|--------|--------|---------|
-| S1 | right OS per host | ✅ `el8` package [19] | ✅ `el9` package [23] | ✅ `el10` package [30] |
-| S2 install, safe defaults | `failed=0` | ✅ `runs/rhel8-c2.log`: ok=44 changed=7 failed=0 ¹ | ✅ `runs/rhel9-c2.log`: ok=45 changed=5 failed=0 | ✅ `runs/rhel10-c2.log`: ok=45 changed=7 failed=0 |
+| S1 | right OS per host | Pass: `el8` package [19] | Pass: `el9` package [23] | Pass: `el10` package [30] |
+| S2 install, safe defaults | `failed=0` | Pass: `runs/rhel8-c2.log`: ok=44 changed=7 failed=0 ¹ | Pass: `runs/rhel9-c2.log`: ok=45 changed=5 failed=0 | Pass: `runs/rhel10-c2.log`: ok=45 changed=7 failed=0 |
 | S3 prep-tls | `failed=0` | not logged; files verified on the host [18] | not logged | not logged |
-| S4 full benchmark | `failed=0`, one restart | ✅ `runs/rhel8-full-benchmark.log`: ok=68 changed=11 failed=0, 1 restart | ✅ `runs/rhel9-full-benchmark.log`: ok=68 changed=11 failed=0, 1 restart | ✅ `runs/rhel10-full-benchmark.log`: ok=68 changed=11 failed=0, 1 restart |
-| S5 rerun | `changed=0 failed=0` | ✅ `runs/rhel8-re-run.log`: ok=46 changed=0 failed=0 | ✅ `runs/rhel9-re-run.log`: ok=46 changed=0 failed=0 | ✅ `runs/rhel10-re-run.log`: ok=46 changed=0 failed=0 |
-| R role report (in S5 log) | no `FAIL` | ✅ 0 FAIL, 2.3 N/A | ✅ 0 FAIL, 2.3 N/A | ✅ 0 FAIL, 2.3 N/A |
+| S4 full benchmark | `failed=0`, one restart | Pass: `runs/rhel8-full-benchmark.log`: ok=68 changed=11 failed=0, 1 restart | Pass: `runs/rhel9-full-benchmark.log`: ok=68 changed=11 failed=0, 1 restart | Pass: `runs/rhel10-full-benchmark.log`: ok=68 changed=11 failed=0, 1 restart |
+| S5 rerun | `changed=0 failed=0` | Pass: `runs/rhel8-re-run.log`: ok=46 changed=0 failed=0 | Pass: `runs/rhel9-re-run.log`: ok=46 changed=0 failed=0 | Pass: `runs/rhel10-re-run.log`: ok=46 changed=0 failed=0 |
+| R role report (in S5 log) | no `FAIL` | Pass: 0 FAIL, 2.3 N/A | Pass: 0 FAIL, 2.3 N/A | Pass: 0 FAIL, 2.3 N/A |
 
 ¹ `runs/rhel8-c2.log` (2026-10-05 04:43) was made with the **rebuild** branch (it contains the pymongo `PREPARE` tasks);
 the S4/S5 logs on all three hosts are from `main`. S4/S5 are the compliance proof; S2 only installs MongoDB.
@@ -110,51 +110,51 @@ echo "== 7.2 =="; sudo stat -c '%a %U:%G %n' /var/lib/mongo
 
 **What the results mean**
 
-| Mark | Name | Used for | Meaning | Evidence needed |
-|------|------|----------|---------|-----------------|
-| ✅ | Pass | Automated rules, and Manual rules with a clear expected value (e.g. 7.2 `770`) | the host shows exactly the value CIS asks for | the screenshot shows that value |
-| 👤✅ | Reviewed | Manual rules where CIS asks a **person** to judge ("appropriate", "review", "organisation's requirements") | there is no fixed pass value; the reviewer looked at the real state and decided it is acceptable | screenshot of the state **+** the decision and reason (table below) |
-| 👤 | Accepted exception | a Manual rule the site deliberately does not meet | not done on purpose; the risk is known and accepted | screenshot of the state **+** the reason and who accepted it (table below) |
-| ➖ | Not applicable | a rule for a setup this host doesn't have (2.3: sharded clusters) | nothing to check | screenshot showing why it doesn't apply |
-| ❌ | Fail | any rule | the host does not meet it and no exception was accepted | fix it, or record an exception |
+| Name | Used for | Meaning | Evidence needed |
+|------|----------|---------|-----------------|
+| Pass | Automated rules, and Manual rules with a clear expected value (e.g. 7.2 `770`) | the host shows exactly the value CIS asks for | the screenshot shows that value |
+| Reviewed | Manual rules where CIS asks a **person** to judge ("appropriate", "review", "organisation's requirements") | there is no fixed pass value; the reviewer looked at the real state and decided it is acceptable | screenshot of the state **+** the decision and reason (table below) |
+| Accepted exception | a Manual rule the site deliberately does not meet | not done on purpose; the risk is known and accepted | screenshot of the state **+** the reason and who accepted it (table below) |
+| Not applicable | a rule for a setup this host doesn't have (2.3: sharded clusters) | nothing to check | screenshot showing why it doesn't apply |
+| Fail | any rule | the host does not meet it and no exception was accepted | fix it, or record an exception |
 
-A host is **compliant** when every rule is ✅, 👤✅, 👤 or ➖, and no rule is ❌. CIS marks a rule Manual because
+A host is **compliant** when every rule is Pass, Reviewed, Exception or N/A, and no rule is Fail. CIS marks a rule Manual because
 *"the expected state can vary depending on the environment"*, so a recorded review is the correct result for it, not a gap.
 
 | ID | L | Type | Pass when | Shot | R8 | R9 | R10 | Notes |
 |----|---|------|-----------|------|----|----|-----|-------|
-| 1.1 | 1 | M | installed = latest 8.0.x in the repo (or a documented reason) | C1 | ✅ | ✅ | ✅ | R8 [19]: installed `v8.0.32`, newest in repo `8.0.32-1.el8`; R9 [23]: `v8.0.32`, repo newest `8.0.32-1.el9`; R10 [30]: `v8.0.32`, repo newest `8.0.32-1.el10` |
-| 2.1 | 1 | A | `authorization: enabled`; command without login fails (*requires authentication*) | C1 | ✅ | ✅ | ✅ | R8 [12]: `Command listDatabases requires authentication`; R9 [23]; R10 [30] |
-| 2.2 | 1 | A | `enableLocalhostAuthBypass: false` | C1 | ✅ | ✅ | ✅ | R8 [13]; R9 [23]; R10 [30] |
-| 2.3 | 2 | A | `0` → standalone, no cluster | C1 | ➖ | ➖ | ➖ | R8 [13]: `0`; R9 [23]: `0`; R10 [30]: `0` |
-| 3.1 | 1 | M | `[]` | C2 | ✅ | ✅ | ✅ | R8 [14]: `[]`; R9 [24]: `[]`; R10 [31]: `[]` |
-| 3.2 | 1 | M | each user has only the roles it needs (lab: `admin.frqadminDB` → `root@admin`) | C2 | 👤✅ | 👤✅ | 👤✅ | R8 [14]: one user, `admin.frqadminDB` → `root@admin` (the 2.1 admin); R9 [24]: only `admin.frqadminDB` → `root@admin`; R10 [31]: only `admin.frqadminDB` → `root@admin` (header typo `3.1 / 3.5`; the command is the 3.2/3.5 check) |
-| 3.3 | 1 | M | owner `mongod`, not root | C2 | ✅ | ✅ | ✅ | R8 [14]: `mongod 93581 /usr/bin/mongod -f /etc/mongod.conf`; R9 [24]: `mongod 45726 /usr/bin/mongod`; R10 [31]: `mongod 21306 /usr/bin/mongod` |
-| 3.4 | 1 | M | `[]` or only needed custom roles | C2 | ✅ | ✅ | ✅ | R8 [14]: `[]`, no custom roles; R9 [29]: `[]`, no custom roles; R10 [31]: `[]` |
-| 3.5 | 2 | M | only the one admin holds `root` / admin roles | C2 | 👤✅ | 👤✅ | 👤✅ | R8 [14]: only `admin.frqadminDB` holds an admin role (`root`), the dedicated admin from 2.1 (CIS 2.1 remediation uses `root` on admin). Reviewed and accepted: one admin is required; R9 [24]: only the 2.1 admin holds `root`; R10 [31]: only the 2.1 admin holds `root` |
-| 4.1 | 2 | A | `disabledProtocols: TLS1_0,TLS1_1` | C3 | ✅ | ✅ | ✅ | R8 [15]; R9 [25]; R10 [32] |
-| 4.2 | 1 | A | same as 4.1 | C3 | ✅ | ✅ | ✅ | R8 [15]; R9 [25]; R10 [32] |
-| 4.3 | 1 | A | `mode: requireTLS` + `certificateKeyFile` + `CAFile`; plain connection fails | C3 | ✅ | ✅ | ✅ | R8 [15]: plain mongosh → `connection <monitor> to 127.0.0.1:27100 closed`; R9 [25]: plain mongosh → `connection … closed`; R10 [32]: plain mongosh → `connection … closed` |
-| 4.4 | 2 | A | `FIPSMode: true`; running mongod reports `FIPSMode: true` + FIPS start line in the log | C3 | ✅ | ✅ | ✅ | R8 [15, 19]: config `FIPSMode: true`; `getCmdLineOpts` → `true`; log `FIPS 140-2 mode activated` (id 23172); R9 [25]: `getCmdLineOpts` → `true`; log `FIPS 140 mode activated` (id 23172; RHEL 8 says `FIPS 140-2`, newer OpenSSL wording); R10 [32]: `getCmdLineOpts` → `true`; log `FIPS 140 mode activated` (id 23172) |
-| 4.5 | 2 | M | lab: `0` (not enabled) → 👤 accepted exception, no key management in the lab | C3 | 👤 | 👤 | 👤 | R8 [15]: `0`. Accepted exception: no KMIP/key management in the lab; existing data can't be encrypted in place (role docs: manual-remediation.md 4.5); R9 [25]: `0`, same exception as R8; R10 [36]: `0`, same exception (first grep in [32] had a typo) |
-| 5.1 | 1 | A | `destination: syslog`; mongod entries in the journal | C4 | ✅ | ✅ | ✅ | R8 [16]: audit events in the journal (`atype: logout`, `getClusterParameter`); R9 [26]: audit events `authenticate`, `logout`, `getClusterParameter` in the journal; R10 [33]: audit events `authenticate`, `logout`, `getClusterParameter` in the journal |
-| 5.2 | 2 | M | no `filter` = every event audited (or the agreed filter) | C4 | 👤✅ | 👤✅ | 👤✅ | R8 [16]: no filter → all auditable events recorded; reviewed, meets the requirement; R9 [26]: no filter; R10 [33]: no filter |
-| 5.3 | 2 | A | `quiet: false` | C4 | ✅ | ✅ | ✅ | R8 [16]; R9 [26]; R10 [33] |
-| 5.4 | 2 | A | `logAppend: true` | C4 | ✅ | ✅ | ✅ | R8 [16]; R9 [26]; R10 [33] |
-| 6.1 | 1 | A | `port: 27100`; listening on 27100; 27100 labelled `mongod_port_t` | C5 | ✅ | ✅ | ✅ | R8 [17]: `LISTEN 127.0.0.1:27100` (mongod); `mongod_port_t tcp 27100, 27017-27019, 28017-28019`; R9 [27]: `LISTEN 127.0.0.1:27100` (mongod), `mongod_port_t` 27100; R10 [34]: `port: 27100`, `LISTEN 127.0.0.1:27100` (mongod), `mongod_port_t` 27100 (grep typo `bindIP` hid the bindIp line) |
-| 6.2 | 2 | M | file size, cpu time, address space, resident set: unlimited; open files, processes: 64000 | C5 | ✅ | ✅ | ✅ | R8 [17]: all six match (RPM unit limits; no drop-in needed); R9 [27]: all six match; R10 [34]: all six match |
-| 6.3 | 2 | M | `javascriptEnabled: false` | C5 | ✅ | ✅ | ✅ | R8 [17]; R9 [27] (screenshot header typo `== 6.4 ==`; the command is the 6.3 check); R10 [34] |
-| 7.1 | 1 | M | `-rw-------` owner `mongod` on `server.pem` and `ca.pem` | C6 | ✅ | ✅ | ✅ | R8 [18]: both `-rw------- mongod mongod`; R9 [28]: both `-rw------- mongod mongod`; R10 [35]: both `-rw------- mongod mongod` |
-| 7.2 | 1 | M | `770 mongod:mongod` | C6 | ✅ | ✅ | ✅ | R8 [18]: `770 mongod:mongod /var/lib/mongo`; R9 [28]: `770 mongod:mongod`; R10 [35]: `770 mongod:mongod` |
+| 1.1 | 1 | M | installed = latest 8.0.x in the repo (or a documented reason) | C1 | Pass | Pass | Pass | R8 [19]: installed `v8.0.32`, newest in repo `8.0.32-1.el8`; R9 [23]: `v8.0.32`, repo newest `8.0.32-1.el9`; R10 [30]: `v8.0.32`, repo newest `8.0.32-1.el10` |
+| 2.1 | 1 | A | `authorization: enabled`; command without login fails (*requires authentication*) | C1 | Pass | Pass | Pass | R8 [12]: `Command listDatabases requires authentication`; R9 [23]; R10 [30] |
+| 2.2 | 1 | A | `enableLocalhostAuthBypass: false` | C1 | Pass | Pass | Pass | R8 [13]; R9 [23]; R10 [30] |
+| 2.3 | 2 | A | `0` → standalone, no cluster | C1 | N/A | N/A | N/A | R8 [13]: `0`; R9 [23]: `0`; R10 [30]: `0` |
+| 3.1 | 1 | M | `[]` | C2 | Pass | Pass | Pass | R8 [14]: `[]`; R9 [24]: `[]`; R10 [31]: `[]` |
+| 3.2 | 1 | M | each user has only the roles it needs (lab: `admin.frqadminDB` → `root@admin`) | C2 | Reviewed | Reviewed | Reviewed | R8 [14]: one user, `admin.frqadminDB` → `root@admin` (the 2.1 admin); R9 [24]: only `admin.frqadminDB` → `root@admin`; R10 [31]: only `admin.frqadminDB` → `root@admin` (header typo `3.1 / 3.5`; the command is the 3.2/3.5 check) |
+| 3.3 | 1 | M | owner `mongod`, not root | C2 | Pass | Pass | Pass | R8 [14]: `mongod 93581 /usr/bin/mongod -f /etc/mongod.conf`; R9 [24]: `mongod 45726 /usr/bin/mongod`; R10 [31]: `mongod 21306 /usr/bin/mongod` |
+| 3.4 | 1 | M | `[]` or only needed custom roles | C2 | Pass | Pass | Pass | R8 [14]: `[]`, no custom roles; R9 [29]: `[]`, no custom roles; R10 [31]: `[]` |
+| 3.5 | 2 | M | only the one admin holds `root` / admin roles | C2 | Reviewed | Reviewed | Reviewed | R8 [14]: only `admin.frqadminDB` holds an admin role (`root`), the dedicated admin from 2.1 (CIS 2.1 remediation uses `root` on admin). Reviewed and accepted: one admin is required; R9 [24]: only the 2.1 admin holds `root`; R10 [31]: only the 2.1 admin holds `root` |
+| 4.1 | 2 | A | `disabledProtocols: TLS1_0,TLS1_1` | C3 | Pass | Pass | Pass | R8 [15]; R9 [25]; R10 [32] |
+| 4.2 | 1 | A | same as 4.1 | C3 | Pass | Pass | Pass | R8 [15]; R9 [25]; R10 [32] |
+| 4.3 | 1 | A | `mode: requireTLS` + `certificateKeyFile` + `CAFile`; plain connection fails | C3 | Pass | Pass | Pass | R8 [15]: plain mongosh → `connection <monitor> to 127.0.0.1:27100 closed`; R9 [25]: plain mongosh → `connection … closed`; R10 [32]: plain mongosh → `connection … closed` |
+| 4.4 | 2 | A | `FIPSMode: true`; running mongod reports `FIPSMode: true` + FIPS start line in the log | C3 | Pass | Pass | Pass | R8 [15, 19]: config `FIPSMode: true`; `getCmdLineOpts` → `true`; log `FIPS 140-2 mode activated` (id 23172); R9 [25]: `getCmdLineOpts` → `true`; log `FIPS 140 mode activated` (id 23172; RHEL 8 says `FIPS 140-2`, newer OpenSSL wording); R10 [32]: `getCmdLineOpts` → `true`; log `FIPS 140 mode activated` (id 23172) |
+| 4.5 | 2 | M | lab: `0` (not enabled) → accepted exception, no key management in the lab | C3 | Exception | Exception | Exception | R8 [15]: `0`. Accepted exception: no KMIP/key management in the lab; existing data can't be encrypted in place (role docs: manual-remediation.md 4.5); R9 [25]: `0`, same exception as R8; R10 [36]: `0`, same exception (first grep in [32] had a typo) |
+| 5.1 | 1 | A | `destination: syslog`; mongod entries in the journal | C4 | Pass | Pass | Pass | R8 [16]: audit events in the journal (`atype: logout`, `getClusterParameter`); R9 [26]: audit events `authenticate`, `logout`, `getClusterParameter` in the journal; R10 [33]: audit events `authenticate`, `logout`, `getClusterParameter` in the journal |
+| 5.2 | 2 | M | no `filter` = every event audited (or the agreed filter) | C4 | Reviewed | Reviewed | Reviewed | R8 [16]: no filter → all auditable events recorded; reviewed, meets the requirement; R9 [26]: no filter; R10 [33]: no filter |
+| 5.3 | 2 | A | `quiet: false` | C4 | Pass | Pass | Pass | R8 [16]; R9 [26]; R10 [33] |
+| 5.4 | 2 | A | `logAppend: true` | C4 | Pass | Pass | Pass | R8 [16]; R9 [26]; R10 [33] |
+| 6.1 | 1 | A | `port: 27100`; listening on 27100; 27100 labelled `mongod_port_t` | C5 | Pass | Pass | Pass | R8 [17]: `LISTEN 127.0.0.1:27100` (mongod); `mongod_port_t tcp 27100, 27017-27019, 28017-28019`; R9 [27]: `LISTEN 127.0.0.1:27100` (mongod), `mongod_port_t` 27100; R10 [34]: `port: 27100`, `LISTEN 127.0.0.1:27100` (mongod), `mongod_port_t` 27100 (grep typo `bindIP` hid the bindIp line) |
+| 6.2 | 2 | M | file size, cpu time, address space, resident set: unlimited; open files, processes: 64000 | C5 | Pass | Pass | Pass | R8 [17]: all six match (RPM unit limits; no drop-in needed); R9 [27]: all six match; R10 [34]: all six match |
+| 6.3 | 2 | M | `javascriptEnabled: false` | C5 | Pass | Pass | Pass | R8 [17]; R9 [27] (screenshot header typo `== 6.4 ==`; the command is the 6.3 check); R10 [34] |
+| 7.1 | 1 | M | `-rw-------` owner `mongod` on `server.pem` and `ca.pem` | C6 | Pass | Pass | Pass | R8 [18]: both `-rw------- mongod mongod`; R9 [28]: both `-rw------- mongod mongod`; R10 [35]: both `-rw------- mongod mongod` |
+| 7.2 | 1 | M | `770 mongod:mongod` | C6 | Pass | Pass | Pass | R8 [18]: `770 mongod:mongod /var/lib/mongo`; R9 [28]: `770 mongod:mongod`; R10 [35]: `770 mongod:mongod` |
 
-## 3b. Review decisions (👤)
+## 3b. Review decisions
 
 | Rule | CIS asks | What the host shows | Decision | Why | R8 | R9 | R10 |
 |------|----------|---------------------|----------|-----|----|----|-----|
-| 3.2 | each user has only the **appropriate** roles | one user: `admin.frqadminDB` → `root@admin` | ✅ accepted | the only account is the dedicated database admin created by 2.1; no application accounts exist yet | 👤✅ [14] | 👤✅ [24] | 👤✅ [31] |
-| 3.5 | **review** superuser/admin roles | only `admin.frqadminDB` holds an admin role (`root`) | ✅ accepted | one dedicated admin is required to manage MongoDB; CIS's own 2.1 remediation creates it with `root`; nobody else has admin rights | 👤✅ [14] | 👤✅ [24] | 👤✅ [31] |
-| 5.2 | audit filter set per the **organisation's requirements** | `auditLog` without `filter` | ✅ accepted | no filter = every auditable event is recorded, the most complete setting; a filter could only record less | 👤✅ [16] | 👤✅ [26] | 👤✅ [33] |
-| 4.5 | encryption of data at rest | `enableEncryption` not set (`0`) | 👤 accepted exception | lab has no key management (KMIP); MongoDB can't encrypt existing data in place and a lost key loses all data (role docs: `manual-remediation.md` 4.5). Production: plan KMIP + migration | 👤 [15] | 👤 [25] | 👤 [36] |
+| 3.2 | each user has only the **appropriate** roles | one user: `admin.frqadminDB` → `root@admin` | accepted | the only account is the dedicated database admin created by 2.1; no application accounts exist yet | [14] | [24] | [31] |
+| 3.5 | **review** superuser/admin roles | only `admin.frqadminDB` holds an admin role (`root`) | accepted | one dedicated admin is required to manage MongoDB; CIS's own 2.1 remediation creates it with `root`; nobody else has admin rights | [14] | [24] | [31] |
+| 5.2 | audit filter set per the **organisation's requirements** | `auditLog` without `filter` | accepted | no filter = every auditable event is recorded, the most complete setting; a filter could only record less | [16] | [26] | [33] |
+| 4.5 | encryption of data at rest | `enableEncryption` not set (`0`) | accepted exception | lab has no key management (KMIP); MongoDB can't encrypt existing data in place and a lost key loses all data (role docs: `manual-remediation.md` 4.5). Production: plan KMIP + migration | [15] | [25] | [36] |
 
 Reviewed / accepted by: ________ (name, role) · Date: ________
 
@@ -194,12 +194,12 @@ Save in `docs/evidence-images/` as `NN-<host>-<shot>-<result>.png` (next free nu
 
 | | RHEL 8 | RHEL 9 | RHEL 10 |
 |---|---|---|---|
-| ✅ Pass | 18 (1.1, 2.1, 2.2, 3.1, 3.3, 3.4, 4.1, 4.2, 4.3, 4.4, 5.1, 5.3, 5.4, 6.1, 6.2, 6.3, 7.1, 7.2) | 18 (1.1, 2.1, 2.2, 3.1, 3.3, 3.4, 4.1, 4.2, 4.3, 4.4, 5.1, 5.3, 5.4, 6.1, 6.2, 6.3, 7.1, 7.2) | 18 (1.1, 2.1, 2.2, 3.1, 3.3, 3.4, 4.1, 4.2, 4.3, 4.4, 5.1, 5.3, 5.4, 6.1, 6.2, 6.3, 7.1, 7.2) |
-| ➖ Not applicable | 2.3 | 2.3 | 2.3 |
-| 👤 Reviewed / accepted exception | 4 (3.2, 3.5, 5.2 reviewed; 4.5 accepted exception) | 4 (3.2, 3.5, 5.2 reviewed; 4.5 accepted exception) | 4 (3.2, 3.5, 5.2 reviewed; 4.5 accepted exception) |
-| ❌ Fail | 0 | 0 | 0 |
+| Pass | 18 (1.1, 2.1, 2.2, 3.1, 3.3, 3.4, 4.1, 4.2, 4.3, 4.4, 5.1, 5.3, 5.4, 6.1, 6.2, 6.3, 7.1, 7.2) | 18 (1.1, 2.1, 2.2, 3.1, 3.3, 3.4, 4.1, 4.2, 4.3, 4.4, 5.1, 5.3, 5.4, 6.1, 6.2, 6.3, 7.1, 7.2) | 18 (1.1, 2.1, 2.2, 3.1, 3.3, 3.4, 4.1, 4.2, 4.3, 4.4, 5.1, 5.3, 5.4, 6.1, 6.2, 6.3, 7.1, 7.2) |
+| Not applicable | 2.3 | 2.3 | 2.3 |
+| Reviewed / accepted exception | 4 (3.2, 3.5, 5.2 reviewed; 4.5 accepted exception) | 4 (3.2, 3.5, 5.2 reviewed; 4.5 accepted exception) | 4 (3.2, 3.5, 5.2 reviewed; 4.5 accepted exception) |
+| Fail | 0 | 0 | 0 |
 
-Each host is compliant with CIS MongoDB 8 Benchmark v2.0.0 Level ☐1 ☑2, with the exceptions above.
+Each host is compliant with CIS MongoDB 8 Benchmark v2.0.0 Level [ ] 1 [x] 2, with the exceptions above.
 
 **RHEL 8 (2026-10-06): compliant with Level 2** (all 23: 18 pass, 1 not applicable, 3 reviewed, 1 accepted exception 4.5).
 
@@ -222,9 +222,9 @@ TLS client certificate (`CN=app-shop`, `clientAuth`, signed by the lab CA), its 
 
 | Shot | Shows | Expected | Result |
 |------|-------|----------|--------|
-| A1 [20] | the app user and all users | `shop.appshop` → `readWrite@shop` only; only 2 users | ✅ `shop.appshop` `readWrite@shop`, `SCRAM-SHA-256`; users: `admin.frqadminDB` (root), `shop.appshop` |
-| A2 [21] | the app writes and reads | count goes up, newest first | ✅ `orders in shop: 5` → `6`, newest `car` first |
-| A3 [22] | what is blocked | 4 refused, own data allowed | ✅ all four refused; own data `6` |
+| A1 [20] | the app user and all users | `shop.appshop` → `readWrite@shop` only; only 2 users | Pass: `shop.appshop` `readWrite@shop`, `SCRAM-SHA-256`; users: `admin.frqadminDB` (root), `shop.appshop` |
+| A2 [21] | the app writes and reads | count goes up, newest first | Pass: `orders in shop: 5` → `6`, newest `car` first |
+| A3 [22] | what is blocked | 4 refused, own data allowed | Pass: all four refused; own data `6` |
 | A4 | role rerun after adding the app user | — | not done (user's choice): the C2 checks above already show 3.1/3.5 stay clean |
 
 **A3 — what each command does**
@@ -237,7 +237,7 @@ TLS client certificate (`CN=app-shop`, `clientAuth`, signed by the lab CA), its 
 | other database | `mongosh $C --tlsCertificateKeyFile app-shop.pem -u appshop … --eval 'db.getSiblingDB("admin").system.users.find()…'` | the app's valid login reading the admin user list | `not authorized on admin to execute command { find: "system.users" … }` | **3.x least privilege**: `readWrite@shop` gives nothing outside `shop` |
 | own data | same login, `--eval 'db.getSiblingDB("shop").orders.countDocuments()'` | the app's valid login reading its own collection | `6` | the app can do its job |
 
-Conclusion: ☑ the app works with its own certificate and least-privilege account; everything outside that is refused,
+Conclusion: [x] the app works with its own certificate and least-privilege account; everything outside that is refused,
 so the hardened host stays usable and compliant.
 
 **Screenshots:** [20](evidence-images/20-rhel8-A1-appshop-readwrite-shop-only.png) ·
