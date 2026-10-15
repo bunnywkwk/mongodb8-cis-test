@@ -6,7 +6,7 @@ Proof that each lab host is hardened by `mongodb8_cis`: the Ansible runs, the ro
 | Item | Value (fill in) |
 |------|-----------------|
 | Role | `requirements.yml` version: [ ] `main` [ ] `mongodb8-cis-rebuild`, commit → |
-| Settings | `sysconfig/group_vars/mongodb.yml` (FULL BENCHMARK block uncommented for S4/S5) |
+| Settings | `sysconfig/group_vars/mongodb.yml` (site values only; risky rules are on in the role since D33) |
 | MongoDB | `mongod --version` → |
 | Date / tester | |
 
@@ -18,7 +18,22 @@ Proof that each lab host is hardened by `mongodb8_cis`: the Ansible runs, the ro
 
 ## 1. Runs (control node) — one screenshot per step
 
-Fresh snapshot, FULL BENCHMARK block **commented**. Replace `<host>` (e.g. `rhel9-mongo`).
+**Next run (role `main` since 2026-10-15):** one run installs and hardens. 4.3 copies the certificates from `pki/`
+(role D32, so `prep-tls.yml` is gone) and risky rules are on by default (role D33, so no block to uncomment).
+Fresh snapshot, replace `<host>` (e.g. `rhel9-mongo`):
+
+```bash
+ansible-galaxy install -r requirements.yml -p roles --force                          # S0
+ansible mongodb -m setup -a 'filter=ansible_distribution*'                           # S1 (once, all hosts)
+ansible-playbook playbooks/site.yml --limit <host> | tee runs/<host>-full.log        # S2 install + full benchmark
+ansible-playbook playbooks/site.yml --limit <host> | tee runs/<host>-rerun.log       # S3 rerun: changed=0
+grep -E '[0-9]\.[0-9] (PASS|FAIL|REVIEW|NOT APPLICABLE)' runs/<host>-rerun.log      # R  role report
+```
+
+The host checks (section 2) don't change.
+
+**Record below (2026-10-06)** was made with the old procedure, kept as it ran: FULL BENCHMARK block **commented**,
+then uncommented after `prep-tls.yml`.
 
 ```bash
 ansible-galaxy install -r requirements.yml -p roles --force                          # S0
